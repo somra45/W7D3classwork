@@ -29,10 +29,41 @@ RSpec.describe "Users", type: :request do
 
   describe "POST #create" do
     before :each do
-      create(:user)
+      create(:legolas)
       allow(subject).to receive(:current_user).and_return(User.last)
     end
 
     let(:valid_params) { { user: { username: current_user.username, password: "password"} } }
+    let(:invalid_params) { { user: {nothing: ""} } }
+
+    context "with valid params" do
+      it "should create a new user" do
+        post :create, params: valid_params
+        expect(User.last.username).to eq(current_user.username)
+
+      end
+      
+      it "should redirect to user show page" do 
+        get :show 
+        expect(response).to render_template(:show)
+      end
+    end
+
+    context "with invalid params" do 
+      before :each do
+        post :create, params: invalid_params
+      end
+        it "should create an error" do 
+          expect(flash[:errors]).to be present
+        end
+
+        it "should redirct to new user form" do 
+          expect(response).to render_template(:new)
+        end
+      
+    end
+
+
+
   end
 end
