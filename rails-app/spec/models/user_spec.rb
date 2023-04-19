@@ -29,37 +29,55 @@ RSpec.describe User, type: :model do
     it { should validate_uniqueness_of(:session_token) }
   end
 
-  describe 'is_password?' do 
+    describe 'is_password?' do 
     let(:user) { create(:user) }
 
-    context "with a vaild password" do 
-        it "should return true" do 
-            expect(user.is_password?('password')).to be true
+        context "with a vaild password" do 
+            it "should return true" do 
+                expect(user.is_password?('password')).to be true
+            end
         end
+
+        context "with an invalid password" do 
+            it "should return false" do 
+                expect(user.is_password?('passowrd')).to be false
+            end
+        end
+
     end
 
-    context "with an invalid password" do 
-        it "should return false" do 
-            expect(user.is_password?('passowrd')).to be false
+    describe "password security" do 
+
+        it 'does not save password to the database' do 
+            FactoryBot.create(:legolas)
+            user = User.find_by(username: 'Legolas')
+            expect(user.password).not_to eq('password')
         end
+
+        it 'secures password using BCrypt' do 
+            expect(BCrypt::Password).to receive(:create).with('cheezit')
+
+            FactoryBot.build(:user, password: 'cheezit')
+        end
+
     end
 
-end
+    describe "self.find_by_credentials" do
 
-describe "password security" do 
+        it "should find user by username" do 
+            FactoryBot.create(:legolas)
+            user = User.find_by(username: 'Legolas')
+            expect(User.find_by_credentials(username: 'Legolas', password: 'password' )).to eq(user)
+        end
 
-    it 'does not save password to the database' do 
+        it "should return nil if password parameter does not match password of user" do
         FactoryBot.create(:legolas)
         user = User.find_by(username: 'Legolas')
-        expect(user.password).not_to eq('password')
+        expect(User.find_by_credentials(username: 'Legolas', password: 'passrd' )).to be nil
+        end
+
     end
 
-    it 'secures password using BCrypt' do 
-        expect(BCrypt::Password).to receive(:create).with('cheezit')
-
-        FactoryBot.build(:user, password: 'cheezit')
-    end
-
-end
+    
 
 end

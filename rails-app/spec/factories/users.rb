@@ -14,8 +14,9 @@ FactoryBot.define do
     username { Faker::Movies::LordOfTheRings.character }
     password { 'password' }
 
-    factory :Legolas do 
+    factory :legolas do 
       username { 'Legolas' }
+      password { 'password' }
     end
   end
 end
