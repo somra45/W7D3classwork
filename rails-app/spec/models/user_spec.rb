@@ -67,17 +67,34 @@ RSpec.describe User, type: :model do
         it "should find user by username" do 
             FactoryBot.create(:legolas)
             user = User.find_by(username: 'Legolas')
-            expect(User.find_by_credentials(username: 'Legolas', password: 'password' )).to eq(user)
+            expect(User.find_by_credentials('Legolas', 'password' )).to eq(user)
         end
 
         it "should return nil if password parameter does not match password of user" do
         FactoryBot.create(:legolas)
         user = User.find_by(username: 'Legolas')
-        expect(User.find_by_credentials(username: 'Legolas', password: 'passrd' )).to be nil
+        expect(User.find_by_credentials('Legolas', 'passrd' )).to be nil
         end
 
     end
 
-    
+    describe "reset_session_token!" do
 
+      it "should have differnt session tokens after method is called on user" do
+        FactoryBot.create(:legolas)
+        user = User.find_by(username: 'Legolas')
+        user_session_token = user.session_token
+        expect(user.reset_session_token!).to_not eq(user_session_token)
+      end
+    end
+    
+    describe "ensure_session_token" do
+
+      it "should set a random session token at initilization" do
+        FactoryBot.create(:legolas)
+        user = User.find_by(username: 'Legolas')
+        expect(user.session_token).to_not be nil
+      end
+
+    end
 end
